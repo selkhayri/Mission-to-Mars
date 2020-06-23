@@ -113,4 +113,3 @@ def scrape_all():
 if __name__ == "__main__":
     # If running as script, print scraped data
     sa = scrape_all()
-    print(sa)

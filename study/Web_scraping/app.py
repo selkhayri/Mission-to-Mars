@@ -5,7 +5,8 @@ Created on Mon Jun 22 09:37:35 2020
 @author: sami
 """
 
-from flask import Flask, render_template, jsonify, send_from_directory
+from flask import Flask, render_template,\
+                jsonify, send_from_directory,redirect,url_for
 from flask_pymongo import PyMongo
 import scraping
 from splinter import Browser
@@ -18,6 +19,7 @@ app.config["MONGO_URI"] = "mongodb://localhost:27017/mars_app"
 mongo = PyMongo(app)
 
 @app.route("/")
+@app.route("/index")
 def index():
    mars = mongo.db.mars.find_one()
    return render_template("index.html", mars=mars)
@@ -25,10 +27,10 @@ def index():
 @app.route("/scrape")
 def scrape():
    mars = mongo.db.mars
-   print(f"type(mars) = {type(mars)}")
    mars_data = scraping.scrape_all()
    mars.update({}, mars_data, upsert=True)
-   return jsonify(mars=mars_data)
+   # return jsonify(mars=mars_data)
+   return redirect(url_for('index'))
    # return "Scraping Successful!"
 
 # Add this route to stop the HTTP 404 error that results when, after flask
