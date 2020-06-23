@@ -23,6 +23,7 @@ def index():
 @app.route("/scrape")
 def scrape():
    mars = mongo.db.mars
+   print(f"type(mars) = {type(mars)}")
    mars_data = scraping.scrape_all()
    mars.update({}, mars_data, upsert=True)
    return jsonify(mars=mars_data)
@@ -30,4 +31,6 @@ def scrape():
 
 
 if __name__ == "__main__":
+   executable_path = {'executable_path': 'chromedriver'}
+   browser = Browser('chrome', **executable_path)
    app.run()
