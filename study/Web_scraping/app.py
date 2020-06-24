@@ -45,6 +45,13 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+
+#@app.route("/css/style.css")
+#def css():
+#    return send_from_directory(os.path.join(app.root_path, 'static'),
+#                               'css/style.css', mimetype='text/html')
+ 
+
 if __name__ == "__main__":
    executable_path = {'executable_path': 'chromedriver'}
    browser = Browser('chrome', **executable_path)

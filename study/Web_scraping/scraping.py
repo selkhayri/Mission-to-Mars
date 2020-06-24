@@ -166,15 +166,13 @@ def get_carousel(dicts):
         htmlcode += '      </div>'
         
         for n in range(1,len(dicts)):
-            print(n)
             htmlcode += '      <div class="item">'
             htmlcode += '        <img src="' + dicts[n]["img_url"] + ' alt=' + dicts[n]["title"] + ' style="width:100%;">'
             htmlcode += '        <div class="carousel-caption">'
             htmlcode += '          <h3>' + dicts[0]["title"] + '</h3>'
             htmlcode += '        </div>'
             htmlcode += '      </div>'
-            htmlcode += ''
-       
+            
         htmlcode += '  '
         htmlcode += '    </div>'
         htmlcode += ''
@@ -191,14 +189,19 @@ def get_carousel(dicts):
         htmlcode += '</div>'
         
         return htmlcode
-   
-    
+     
 
 def scrape_all():
     # Initiate headless driver for deployment
     browser = Browser("chrome", executable_path="chromedriver", headless=True)
     news_title, news_paragraph = mars_news(browser)
    
+    # Dict list: One dict per hemisphere
+    hemisphere_dicts = mars_hemispheres(browser)
+   
+    facts = mars_facts() 
+    print(facts)
+    
     # Run all scraping functions and store results in dictionary
     data = {
           "news_title": news_title,
@@ -206,13 +209,11 @@ def scrape_all():
           "featured_image": featured_image(browser),
           "facts": mars_facts(),
           "last_modified": dt.datetime.now(),
+          "carousel": get_carousel(hemisphere_dicts)
     }
     
-    hemisphere_dicts = mars_hemispheres(browser)
-    data["carousel"] = get_carousel(hemisphere_dicts)
     
     return data
-    
 
 
 if __name__ == "__main__":
