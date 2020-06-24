@@ -24,6 +24,10 @@ def index():
    mars = mongo.db.mars.find_one()
    return render_template("index.html", mars=mars)
 
+@app.route("/carousel")
+def carousel():
+    return render_template("carousel.html")
+
 @app.route("/scrape")
 def scrape():
    mars = mongo.db.mars

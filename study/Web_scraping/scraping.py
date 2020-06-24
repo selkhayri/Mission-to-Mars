@@ -94,6 +94,94 @@ def mars_facts():
     # Convert dataframe into HTML format, add bootstrap
     return df.to_html()
 
+def mars_hemispheres(browser):
+    try:
+        
+        # Visit the astrogeology site
+        url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
+        browser.visit(url)
+        
+        # Set up the HTML parser
+        html = browser.html
+        soup = BeautifulSoup(html, 'html.parser')
+        results = soup.findAll("div", {"class": "collapsible results"})[0]
+        items = results.findAll("div", {"class": "item"})
+
+
+        titles = []
+        for item in items:
+            link = item.find("a")["href"]
+            title = item.find("h3").get_text()
+            titles.append(title)    
+            
+        urls = []
+        for item in items:
+            item_uri = item.find("a")["href"]
+            item_url = f"https://astrogeology.usgs.gov{item_uri}"
+            
+            browser.visit(item_url)
+            html = browser.html
+        
+            soup = BeautifulSoup(html, 'html.parser')
+            list_items = soup.findAll("li")
+            for li in list_items:
+                link = li.find("a")
+                if link.text == "Sample":            
+                    urls.append(link["href"])
+                    break
+        
+        htmlcode = ''
+        htmlcode += '<div class="container">'
+        htmlcode += '  <div id="myCarousel" class="carousel slide" data-ride="carousel">'
+        htmlcode += '    <!-- Indicators -->'
+        htmlcode += '    <ol class="carousel-indicators">'
+        htmlcode += '      <li data-target="#myCarousel" data-slide-to="0" class="active"></li>'
+        
+        for n in range(1,len(titles)):            
+            htmlcode += '      <li data-target="#myCarousel" data-slide-to="{n}"></li>'
+            
+        htmlcode += '    </ol>'
+        htmlcode += ''
+        htmlcode += '    <!-- Wrapper for slides -->'
+        htmlcode += '    <div class="carousel-inner">'
+        htmlcode += ''
+        htmlcode += '      <div class="item active">'
+        htmlcode += f'        <img src="{urls[0]}" alt="{titles[0]}" style="width:100%;">'
+        htmlcode += '        <div class="carousel-caption">'
+        htmlcode += f'          <h3>{titles[0]}</h3>'
+        htmlcode += '        </div>'
+        htmlcode += '      </div>'
+        
+        for n in range(1,len(titles)):
+            print(n)
+            htmlcode += '      <div class="item">'
+            htmlcode += f'        <img src="{urls[n]}" alt="{titles[n]}" style="width:100%;">'
+            htmlcode += '        <div class="carousel-caption">'
+            htmlcode += f'          <h3>{titles[n]}</h3>'
+            htmlcode += '        </div>'
+            htmlcode += '      </div>'
+            htmlcode += ''
+       
+        htmlcode += '  '
+        htmlcode += '    </div>'
+        htmlcode += ''
+        htmlcode += '    <!-- Left and right controls -->'
+        htmlcode += '    <a class="left carousel-control" href="#myCarousel" data-slide="prev">'
+        htmlcode += '      <span class="glyphicon glyphicon-chevron-left"></span>'
+        htmlcode += '      <span class="sr-only">Previous</span>'
+        htmlcode += '    </a>'
+        htmlcode += '    <a class="right carousel-control" href="#myCarousel" data-slide="next">'
+        htmlcode += '      <span class="glyphicon glyphicon-chevron-right"></span>'
+        htmlcode += '      <span class="sr-only">Next</span>'
+        htmlcode += '    </a>'
+        htmlcode += '  </div>'
+        htmlcode += '</div>'
+        
+        return htmlcode
+   
+    except BaseException as be:
+        return None
+
 def scrape_all():
     # Initiate headless driver for deployment
     browser = Browser("chrome", executable_path="chromedriver", headless=True)
@@ -105,11 +193,14 @@ def scrape_all():
           "news_paragraph": news_paragraph,
           "featured_image": featured_image(browser),
           "facts": mars_facts(),
-          "last_modified": dt.datetime.now()
+          "last_modified": dt.datetime.now(),
+          "carousel": mars_hemispheres(browser)
     }
     
     return data
     
+
+
 if __name__ == "__main__":
     # If running as script, print scraped data
     sa = scrape_all()
