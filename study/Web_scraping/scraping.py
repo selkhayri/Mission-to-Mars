@@ -94,6 +94,7 @@ def mars_facts():
     # Convert dataframe into HTML format, add bootstrap
     return df.to_html()
 
+
 def mars_hemispheres(browser):
     try:
         
@@ -130,6 +131,18 @@ def mars_hemispheres(browser):
                     urls.append(link["href"])
                     break
         
+        dicts = []
+        for n in range(len(titles)):
+            dct = {"title":titles[n],"img_url":urls[n]}
+            dicts.append(dct)
+        
+        return dicts    
+       
+    except BaseException as be:
+        return None
+    
+def get_carousel(dicts):
+        
         htmlcode = ''
         htmlcode += '<div class="container">'
         htmlcode += '  <div id="myCarousel" class="carousel slide" data-ride="carousel">'
@@ -137,7 +150,7 @@ def mars_hemispheres(browser):
         htmlcode += '    <ol class="carousel-indicators">'
         htmlcode += '      <li data-target="#myCarousel" data-slide-to="0" class="active"></li>'
         
-        for n in range(1,len(titles)):            
+        for n in range(1,len(dicts)):            
             htmlcode += '      <li data-target="#myCarousel" data-slide-to="{n}"></li>'
             
         htmlcode += '    </ol>'
@@ -146,18 +159,18 @@ def mars_hemispheres(browser):
         htmlcode += '    <div class="carousel-inner">'
         htmlcode += ''
         htmlcode += '      <div class="item active">'
-        htmlcode += f'        <img src="{urls[0]}" alt="{titles[0]}" style="width:100%;">'
+        htmlcode += '        <img src="' + dicts[0]["img_url"] + ' alt=' + dicts[0]["title"] + ' style="width:100%;">'
         htmlcode += '        <div class="carousel-caption">'
-        htmlcode += f'          <h3>{titles[0]}</h3>'
+        htmlcode += '          <h3>' + dicts[0]["title"] + '</h3>'
         htmlcode += '        </div>'
         htmlcode += '      </div>'
         
-        for n in range(1,len(titles)):
+        for n in range(1,len(dicts)):
             print(n)
             htmlcode += '      <div class="item">'
-            htmlcode += f'        <img src="{urls[n]}" alt="{titles[n]}" style="width:100%;">'
+            htmlcode += '        <img src="' + dicts[n]["img_url"] + ' alt=' + dicts[n]["title"] + ' style="width:100%;">'
             htmlcode += '        <div class="carousel-caption">'
-            htmlcode += f'          <h3>{titles[n]}</h3>'
+            htmlcode += '          <h3>' + dicts[0]["title"] + '</h3>'
             htmlcode += '        </div>'
             htmlcode += '      </div>'
             htmlcode += ''
@@ -179,8 +192,7 @@ def mars_hemispheres(browser):
         
         return htmlcode
    
-    except BaseException as be:
-        return None
+    
 
 def scrape_all():
     # Initiate headless driver for deployment
@@ -194,8 +206,10 @@ def scrape_all():
           "featured_image": featured_image(browser),
           "facts": mars_facts(),
           "last_modified": dt.datetime.now(),
-          "carousel": mars_hemispheres(browser)
     }
+    
+    hemisphere_dicts = mars_hemispheres(browser)
+    data["carousel"] = get_carousel(hemisphere_dicts)
     
     return data
     
