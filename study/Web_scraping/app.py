@@ -46,10 +46,10 @@ def favicon():
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
-#@app.route("/css/style.css")
+#@app.route("/styles/mainpage.css")
 #def css():
 #    return send_from_directory(os.path.join(app.root_path, 'static'),
-#                               'css/style.css', mimetype='text/html')
+#                               'styles/mainpage.css', mimetype='text/html')
  
 
 if __name__ == "__main__":

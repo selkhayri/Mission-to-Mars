@@ -94,6 +94,40 @@ def mars_facts():
     # Convert dataframe into HTML format, add bootstrap
     return df.to_html()
 
+def add_class(html,tag,class_name):
+    
+    lines = html.split("\n")
+    for i,line in enumerate(lines):
+        if tag in line:
+            lines[i] = append_class(line,class_name)
+            print(lines[i])
+            break
+    
+    new_lines = "\n".join(lines)
+    
+    return new_lines
+    
+def append_class(line,class_name):
+    segments = line.split()
+
+    for seg in segments:
+        if "class=" in seg:
+            keyVal = seg.split("=")
+            key = keyVal[0]
+            val = keyVal[1]
+            classes = val.split("\"")
+            classes[1] += " table-striped"
+            keyVal[1] = "\"".join(classes)
+            new_classes = "=".join(keyVal)
+            
+    for i,seg in enumerate(segments):
+        if "class=" in seg:
+            segments[i] = new_classes
+            break
+        
+    new_line = " ".join(segments)
+    
+    return new_line
 
 def mars_hemispheres(browser):
     try:
@@ -200,14 +234,14 @@ def scrape_all():
     hemisphere_dicts = mars_hemispheres(browser)
    
     facts = mars_facts() 
-    print(facts)
+    facts = add_class(facts,"table","table-striped")
     
     # Run all scraping functions and store results in dictionary
     data = {
           "news_title": news_title,
           "news_paragraph": news_paragraph,
           "featured_image": featured_image(browser),
-          "facts": mars_facts(),
+          "facts": facts,
           "last_modified": dt.datetime.now(),
           "carousel": get_carousel(hemisphere_dicts)
     }
