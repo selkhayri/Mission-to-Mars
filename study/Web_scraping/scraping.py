@@ -3,7 +3,9 @@ from splinter import Browser
 from bs4 import BeautifulSoup
 import pandas as pd
 import datetime as dt
+import re
 
+from lxml.html.soupparser import fromstring
 
 def mars_news(browser):
     
@@ -94,46 +96,14 @@ def mars_facts():
     # Convert dataframe into HTML format, add bootstrap
     return df.to_html()
 
-def add_class(html,tag,class_name):
-    
-    lines = html.split("\n")
-    for i,line in enumerate(lines):
-        if tag in line:
-            lines[i] = append_class(line,class_name)
-            print(lines[i])
-            break
-    
-    new_lines = "\n".join(lines)
-    
-    return new_lines
-    
-def append_class(line,class_name):
-    segments = line.split()
-
-    for seg in segments:
-        if "class=" in seg:
-            keyVal = seg.split("=")
-            key = keyVal[0]
-            val = keyVal[1]
-            classes = val.split("\"")
-            classes[1] += " table-striped"
-            keyVal[1] = "\"".join(classes)
-            new_classes = "=".join(keyVal)
-            
-    for i,seg in enumerate(segments):
-        if "class=" in seg:
-            segments[i] = new_classes
-            break
-        
-    new_line = " ".join(segments)
-    
-    return new_line
 
 def mars_hemispheres(browser):
     try:
         
         # Visit the astrogeology site
-        url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
+        #url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
+        url = 'https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-online-content/'\
+            'module_10/Astropedia+Search+Results+_+USGS+Astrogeology+Science+Center.htm'
         browser.visit(url)
         
         # Set up the HTML parser
@@ -142,17 +112,18 @@ def mars_hemispheres(browser):
         results = soup.findAll("div", {"class": "collapsible results"})[0]
         items = results.findAll("div", {"class": "item"})
 
-
         titles = []
         for item in items:
             link = item.find("a")["href"]
             title = item.find("h3").get_text()
             titles.append(title)    
-            
+        
+        main_url = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-online-content/module_10/"
         urls = []
         for item in items:
-            item_uri = item.find("a")["href"]
-            item_url = f"https://astrogeology.usgs.gov{item_uri}"
+            divdesc = item.find("div",{"class":"description"})
+            item_uri = divdesc.find("a")["href"]
+            item_url = f"{main_url}{item_uri}"
             
             browser.visit(item_url)
             html = browser.html
@@ -170,11 +141,66 @@ def mars_hemispheres(browser):
             dct = {"title":titles[n],"img_url":urls[n]}
             dicts.append(dct)
         
+        
         return dicts    
        
     except BaseException as be:
+        print(be)
         return None
+
+
+def add_class(html,tag,class_name,text=""):
     
+    beautifulSoup = BeautifulSoup(html,'lxml')
+    if text != "":
+        tags = beautifulSoup.find_all(tag,text=re.compile(text))
+    else:
+        tags = beautifulSoup.find_all(tag)
+    
+    for tag in tags:
+        tag['class'].append(class_name)
+
+    return beautifulSoup.prettify( formatter="html" )
+
+
+def remove_class(html,tag,class_name,text=""):
+    
+    beautifulSoup = BeautifulSoup(html,'lxml')
+    if text != "":
+        tags = beautifulSoup.find_all(tag,text=re.compile(text))
+    else:
+        tags = beautifulSoup.find_all(tag)
+    
+    for tag in tags:
+        tag['class'].remove(class_name)
+
+    return beautifulSoup.prettify( formatter="html" )
+
+
+def add_attribute(html,tag,attr_name,attr_value,text=""):
+    beautifulSoup = BeautifulSoup(html,'lxml')
+    if text != "":
+        tags = beautifulSoup.find_all(tag,text=re.compile(text))
+    else:
+        tags = beautifulSoup.find_all(tag)
+    
+    for tag in tags:
+        tag[attr_name] = attr_value
+
+    return beautifulSoup.prettify( formatter="html" )
+
+
+def remove_attribute(html,tag,attr_name,text=""):
+    beautifulSoup = BeautifulSoup(html,'lxml')
+
+    tags = beautifulSoup.find_all(tag)
+    
+    for t in tags:
+        del(t[attr_name])
+
+    return beautifulSoup.prettify( formatter="html" )
+
+
 def get_carousel(dicts):
         
         htmlcode = ''
@@ -193,7 +219,7 @@ def get_carousel(dicts):
         htmlcode += '    <div class="carousel-inner">'
         htmlcode += ''
         htmlcode += '      <div class="item active">'
-        htmlcode += '        <img src="' + dicts[0]["img_url"] + ' alt=' + dicts[0]["title"] + ' style="width:100%;">'
+        htmlcode += '        <img src="' + dicts[0]["img_url"] + '" alt="' + dicts[0]["title"] + '" style="width:100%;">'
         htmlcode += '        <div class="carousel-caption">'
         htmlcode += '          <h3>' + dicts[0]["title"] + '</h3>'
         htmlcode += '        </div>'
@@ -201,7 +227,7 @@ def get_carousel(dicts):
         
         for n in range(1,len(dicts)):
             htmlcode += '      <div class="item">'
-            htmlcode += '        <img src="' + dicts[n]["img_url"] + ' alt=' + dicts[n]["title"] + ' style="width:100%;">'
+            htmlcode += '        <img src="' + dicts[n]["img_url"] + '" alt="' + dicts[n]["title"] + '" style="width:100%;">'
             htmlcode += '        <div class="carousel-caption">'
             htmlcode += '          <h3>' + dicts[0]["title"] + '</h3>'
             htmlcode += '        </div>'
@@ -223,18 +249,27 @@ def get_carousel(dicts):
         htmlcode += '</div>'
         
         return htmlcode
-     
+
 
 def scrape_all():
     # Initiate headless driver for deployment
-    browser = Browser("chrome", executable_path="chromedriver", headless=True)
+    browser = Browser("chrome", executable_path="chromedriver", headless=False)
     news_title, news_paragraph = mars_news(browser)
    
     # Dict list: One dict per hemisphere
     hemisphere_dicts = mars_hemispheres(browser)
-   
+    print(hemisphere_dicts)
+    
     facts = mars_facts() 
-    facts = add_class(facts,"table","table-striped")
+    # Add bootstrap classes table-hover and table-responsive classes 
+    # to dataframe table
+    facts = add_class(facts,"table","table-hover table-responsive")
+    
+    # Remove style attribute from tr tag 
+    facts = remove_attribute(facts,"tr","style","Mars")
+    
+    # Center Mars table heading with bootstrap class
+    facts = add_attribute(facts,"th","class","text-center","Mars")
     
     # Run all scraping functions and store results in dictionary
     data = {
