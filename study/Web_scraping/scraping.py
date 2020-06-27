@@ -1,11 +1,10 @@
-# Import Splinter and BeautifulSoup
+# Import dependencies
 from splinter import Browser
 from bs4 import BeautifulSoup
 import pandas as pd
 import datetime as dt
 import re
-
-from lxml.html.soupparser import fromstring
+# from lxml.html.soupparser import fromstring
 
 def mars_news(browser):
     
@@ -200,7 +199,6 @@ def remove_attribute(html,tag,attr_name,text=""):
 
     return beautifulSoup.prettify( formatter="html" )
 
-
 def get_carousel(dicts):
         
         htmlcode = ''
@@ -253,7 +251,7 @@ def get_carousel(dicts):
 
 def scrape_all():
     # Initiate headless driver for deployment
-    browser = Browser("chrome", executable_path="chromedriver", headless=False)
+    browser = Browser("chrome", executable_path="chromedriver", headless=True)
     news_title, news_paragraph = mars_news(browser)
    
     # Dict list: One dict per hemisphere
