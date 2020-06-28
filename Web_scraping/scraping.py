@@ -365,7 +365,7 @@ def remove_attribute(html,tag,child_tags,attr_name,text=""):
                     del(tg[attr_name])
         else:
             # if the text argument is blank
-            del(t[attr_name])
+            del(tg[attr_name])
 
     # Return the new html 
     return beautifulSoup.prettify( formatter="html" )
