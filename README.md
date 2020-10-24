@@ -38,5 +38,6 @@ To retrieve the facts on Mars, the following steps are taken:
 3. The contents of the DataFrame are retreived as html.
 4. The browser instance is terminated.
 
+![](Web_scraping/img/Mars_facts.png)
 
 
