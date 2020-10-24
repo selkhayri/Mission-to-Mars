@@ -20,14 +20,14 @@ To retrieve an image of Mars, the following steps are taken:
 1. The browser instance is directed to URL https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars.
 2. An element of class *full_image* is retrieved from the browser and the browser is instructed to click() on the element. 
 
-![](img/Mars_2.png)
+![](Web_scraping/img/Mars_1.png)
 
 3. On the next page, an element containing text "more info" is clicked to traverse to the full image page.
 4. On the next page, the browser instance is reloaded with the contents of that page.
 5. On the next page, a URN is retrieved an element identified by the sequence "figure.lede a img" (a figure item of class *lede* which contains an anchor item which itself contains an image item).
 6. The URN is concatenated with the NASA's main URI to retrieve the full size image of Mars.
 
-![](img/Mars_2.png)
+![](Web_scraping/img/Mars_2.png)
 
 ## Space facts
 
